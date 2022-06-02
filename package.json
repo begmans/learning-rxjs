@@ -1,0 +1,17 @@
+{
+  "name": "rxjs-learning",
+  "version": "1.0.0",
+  "description": "tests on RxJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Benoit Mansoux",
+  "license": "ISC",
+  "dependencies": {
+    "luxon": "^2.4.0",
+    "rxjs": "^7.0.0"
+  },
+  "type": "module"
+}
