@@ -7,12 +7,9 @@ const randomCharCode = () => Math.floor(((91-65) * Math.random()) + 65);
 
 async function main() {
   const in2days = DateTime.now().plus({ days: 2 });
-  const inOneMinute = DateTime.now().plus({ minutes: 1 });
-
   const maxIntervalBeforeNextEmit = 5000;
 
-  const letterEmitter = buildEmitterRecursive(inOneMinute, maxIntervalBeforeNextEmit);
-  //const letterEmitter = buildEmitterWhile(inOneMinute, maxIntervalBeforeNextEmit);
+  const letterEmitter = buildEmitter(in2days, maxIntervalBeforeNextEmit);
 
   letterEmitter.subscribe( (v) => {console.log(`s1 receives: ${v}`)} );
 
@@ -26,40 +23,25 @@ async function main() {
   
 }
 
-function buildEmitterRecursive(deadline, maxInterval) {
+function buildEmitter(deadline, maxInterval) {
 
   const delayEmit = buildDelayEmit(deadline, maxInterval);
 
   return new Observable((subscriber) => {
     
     subscriber.next(String.fromCharCode(randomCharCode()));
-    delayEmit(subscriber);
-    
+    delayEmit(subscriber, deadline, maxInterval);
   });
 }
 
-function buildEmitterWhile(deadline, maxInterval) {
-  const lazyExec = async (subscriber) => {
-    while(DateTime.now() <  deadline) {
-      subscriber.next(String.fromCharCode(randomCharCode()));
-      const myDelay = Math.floor(Math.random() * maxInterval);
-      console.log(myDelay);
-      await sleep(myDelay);
-    }
-
-    subscriber.complete();
-  }
-  return new Observable(lazyExec);
-}
-
 function buildDelayEmit (deadline, maxInterval) {
-  return function recursiveExec(subscriber) {
+  return function rec(subscriber) {
     const myDelay = Math.floor(Math.random() * maxInterval);
     console.log(myDelay);
     setTimeout(() => {
       subscriber.next(String.fromCharCode(randomCharCode()));
       if (DateTime.now() < deadline) { 
-        recursiveExec(subscriber); }
+        rec(subscriber); }
       else {
         subscriber.complete();
       } 
