@@ -1,47 +1,24 @@
 import { Observable } from "rxjs";
 import { DateTime } from "luxon";
-import { sleep } from "./utils.js";
-
-const randomCharCode = () => Math.floor(((91-65) * Math.random()) + 65); 
+import { sleep, randomString } from "./utils.js";
 
 
-async function main() {
-  const in2days = DateTime.now().plus({ days: 2 });
-  const inOneMinute = DateTime.now().plus({ minutes: 1 });
-
-  const maxIntervalBeforeNextEmit = 5000;
-
-  const letterEmitter = buildEmitterRecursive(inOneMinute, maxIntervalBeforeNextEmit);
-  //const letterEmitter = buildEmitterWhile(inOneMinute, maxIntervalBeforeNextEmit);
-
-  letterEmitter.subscribe( (v) => {console.log(`s1 receives: ${v}`)} );
-
-  const secondObserver = {
-    next: (value) => { console.log(`observer 2 receives: ${value}`)},
-    complete: (value) => {console.log(`observable excecution is complete: ${value}`) }
-  };
-
-  await sleep(5000);
-  letterEmitter.subscribe(secondObserver);
-  
-}
-
-function buildEmitterRecursive(deadline, maxInterval) {
+export function buildEmitterRecursive(deadline, maxInterval) {
 
   const delayEmit = buildDelayEmit(deadline, maxInterval);
 
   return new Observable((subscriber) => {
     
-    subscriber.next(String.fromCharCode(randomCharCode()));
+    subscriber.next(randomString());
     delayEmit(subscriber);
     
   });
 }
 
-function buildEmitterWhile(deadline, maxInterval) {
+export function buildEmitterWhile(deadline, maxInterval) {
   const lazyExec = async (subscriber) => {
     while(DateTime.now() <  deadline) {
-      subscriber.next(String.fromCharCode(randomCharCode()));
+      subscriber.next(randomString());
       const myDelay = Math.floor(Math.random() * maxInterval);
       console.log(myDelay);
       await sleep(myDelay);
@@ -57,7 +34,7 @@ function buildDelayEmit (deadline, maxInterval) {
     const myDelay = Math.floor(Math.random() * maxInterval);
     console.log(myDelay);
     setTimeout(() => {
-      subscriber.next(String.fromCharCode(randomCharCode()));
+      subscriber.next(randomString());
       if (DateTime.now() < deadline) { 
         recursiveExec(subscriber); }
       else {
@@ -67,4 +44,3 @@ function buildDelayEmit (deadline, maxInterval) {
   }
 }
 
-main();
