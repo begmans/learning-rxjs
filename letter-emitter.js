@@ -1,10 +1,11 @@
 import { Observable } from "rxjs";
 import { DateTime } from "luxon";
+import { sleep } from "./utils.js";
 
 const randomCharCode = () => Math.floor(((91-65) * Math.random()) + 65); 
 
 
-function main() {
+async function main() {
   const in2days = DateTime.now().plus({ days: 2 });
   const maxIntervalBeforeNextEmit = 5000;
 
@@ -12,9 +13,13 @@ function main() {
 
   letterEmitter.subscribe( (v) => {console.log(`s1 receives: ${v}`)} );
 
-  setTimeout(() => {
-    letterEmitter.subscribe( (v) => { console.log(`s2 receives: ${v}`)} );
-  }, 5000);
+  const secondObserver = {
+    next: (value) => { console.log(`observer 2 receives: ${value}`)},
+    complete: (value) => {console.log(`observable excecution is complete: ${value}`) }
+  };
+
+  await sleep(5000);
+  letterEmitter.subscribe(secondObserver);
   
 }
 
